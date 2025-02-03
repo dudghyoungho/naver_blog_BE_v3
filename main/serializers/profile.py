@@ -4,12 +4,19 @@ from ..models.profile import Profile
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['blog_name', 'blog_pic', 'username', 'user_pic', 'intro']  # intro 필드 추가
+        fields = ['blog_name', 'blog_pic', 'username', 'user_pic', 'intro','neighbor_visibility']  # intro 필드 추가
+
         extra_kwargs = {
             'blog_pic': {'required': False, 'allow_null': True},
             'user_pic': {'required': False, 'allow_null': True},
             'intro': {'required': False, 'allow_blank': True}  # intro는 선택사항
         }
+
+    def get_neighbors(self,obj):
+        return [
+            {"username": neighbor.username, "user_pic": neighbor.user_pic.url if neighbor.user_pic else None}
+            for neighbor in obj.neighsbors.all()
+        ]
 
     def validate_blog_name(self, value):
         if not value.strip():
